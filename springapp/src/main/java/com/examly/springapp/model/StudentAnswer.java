@@ -1,27 +1,22 @@
 package com.examly.springapp.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class StudentAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long answerId;
 
-    @ManyToOne
-    @JoinColumn(name = "student_exam_id", nullable = false)
-    private StudentExam studentExam;
-
-    @ManyToOne
-    @JoinColumn(name = "question_id", nullable = false)
-    private Question question;
-
-    @Column(nullable = false)
     private String selectedOption;
-
     private Boolean isCorrect;
+    private int marksEarned;
 
-    // getters and setters
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    private Question question;
 }
