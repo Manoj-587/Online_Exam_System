@@ -1,12 +1,16 @@
 package com.examly.springapp.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Data
 public class Exam {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long examId;
 
     @Column(nullable = false, length = 100)
@@ -16,23 +20,22 @@ public class Exam {
     private String description;
 
     @Column(nullable = false)
-    private Integer duration;  // 10 to 180
+    private Integer duration; // minutes
 
     @Column(nullable = false)
     private String createdBy;
 
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Boolean isActive;
+    private Boolean isActive = false;
 
-    // Relations
-    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
 
-    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL)
-    private List<StudentExam> studentExams;
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     // getters and setters
 }

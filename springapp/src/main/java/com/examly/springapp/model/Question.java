@@ -1,15 +1,18 @@
 package com.examly.springapp.model;
 
-
+import jakarta.annotation.sql.DataSourceDefinition;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class Question {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questionId;
 
     @ManyToOne
-    @JoinColumn(name = "examId", nullable = false)
+    @JoinColumn(name = "exam_id", nullable = false)
     private Exam exam;
 
     @Column(nullable = false, length = 500)
@@ -27,11 +30,11 @@ public class Question {
     @Column(nullable = false, length = 200)
     private String optionD;
 
-    @Column(nullable = false, length = 1)
+    @Column(nullable = false)
     private String correctOption; // A, B, C, D
 
     @Column(nullable = false)
-    private Integer marks;  // 1-10
+    private Integer marks;
 
     // getters and setters
 }

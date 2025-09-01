@@ -1,5 +1,7 @@
 package com.examly.springapp.repository;
 
-public class QuestionRepository {
-    
-}
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.examly.springapp.model.Question;
+
+public interface QuestionRepository extends JpaRepository<Question, Long> { }
