@@ -1,8 +1,8 @@
 package com.examly.springapp.controller;
 
+import com.examly.springapp.model.Exam;
 import com.examly.springapp.model.StudentAnswer;
 import com.examly.springapp.service.StudentExamService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,38 +20,40 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getAvailableExams() {
+    public ResponseEntity<List<Exam>> getAvailableExams() {
         return ResponseEntity.ok(studentExamService.getAvailableExams());
     }
 
     @PostMapping("/{examId}/start")
     public ResponseEntity<Map<String, Object>> startExam(
             @PathVariable Long examId,
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, String> body
+    ) {
         String studentUsername = body.get("studentUsername");
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(studentExamService.startExam(examId, studentUsername));
+        Map<String, Object> resp = studentExamService.startExam(examId, studentUsername);
+        return ResponseEntity.status(201).body(resp);
     }
 
     @PostMapping("/{studentExamId}/answers")
     public ResponseEntity<StudentAnswer> submitAnswer(
             @PathVariable Long studentExamId,
-            @RequestBody Map<String, Object> body) {
+            @RequestBody Map<String, Object> body
+    ) {
         Long questionId = Long.valueOf(body.get("questionId").toString());
         String selectedOption = body.get("selectedOption").toString();
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(studentExamService.submitAnswer(studentExamId, questionId, selectedOption));
+        StudentAnswer ans = studentExamService.submitAnswer(studentExamId, questionId, selectedOption);
+        return ResponseEntity.status(201).body(ans);
     }
 
     @PostMapping("/{studentExamId}/complete")
-    public ResponseEntity<Map<String, Object>> completeExam(
-            @PathVariable Long studentExamId) {
-        return ResponseEntity.ok(studentExamService.completeExam(studentExamId));
+    public ResponseEntity<Map<String, Object>> completeExam(@PathVariable Long studentExamId) {
+        Map<String, Object> resp = studentExamService.completeExam(studentExamId);
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/{studentExamId}/results")
-    public ResponseEntity<Map<String, Object>> getResults(
-            @PathVariable Long studentExamId) {
-        return ResponseEntity.ok(studentExamService.getResults(studentExamId));
+    public ResponseEntity<Map<String, Object>> getResults(@PathVariable Long studentExamId) {
+        Map<String, Object> resp = studentExamService.getResults(studentExamId);
+        return ResponseEntity.ok(resp);
     }
 }

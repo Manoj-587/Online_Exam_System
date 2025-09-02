@@ -4,8 +4,8 @@ import com.examly.springapp.model.Exam;
 import com.examly.springapp.model.Question;
 import com.examly.springapp.service.ExamService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -21,22 +21,25 @@ public class TeacherController {
 
     @PostMapping
     public ResponseEntity<Exam> createExam(@RequestBody Exam exam) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(examService.createExam(exam));
+        Exam saved = examService.createExam(exam);
+        return ResponseEntity.status(201).body(saved);
     }
 
     @PostMapping("/{examId}/questions")
     public ResponseEntity<Question> addQuestion(@PathVariable Long examId, @RequestBody Question question) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(examService.addQuestion(examId, question));
+        Question saved = examService.addQuestion(examId, question);
+        return ResponseEntity.status(201).body(saved);
     }
 
     @GetMapping
-    public ResponseEntity<List<Exam>> getExamsByTeacher(@RequestParam String createdBy) {
+    public ResponseEntity<List<Exam>> getExamsByTeacher(@RequestParam(name = "createdBy") String createdBy) {
         return ResponseEntity.ok(examService.getExamsByTeacher(createdBy));
     }
 
     @PatchMapping("/{examId}/status")
-    public ResponseEntity<Exam> updateExamStatus(@PathVariable Long examId, @RequestBody Map<String, Boolean> req) {
-        boolean isActive = req.get("isActive");
-        return ResponseEntity.ok(examService.setExamActiveStatus(examId, isActive));
+    public ResponseEntity<Exam> setExamStatus(@PathVariable Long examId, @RequestBody Map<String, Object> body) {
+        Boolean isActive = (Boolean) body.get("isActive");
+        Exam updated = examService.setExamActiveStatus(examId, isActive);
+        return ResponseEntity.ok(updated);
     }
 }

@@ -2,90 +2,48 @@ package com.examly.springapp.service;
 
 import com.examly.springapp.model.Exam;
 import com.examly.springapp.model.Question;
+import com.examly.springapp.repository.ExamRepository;
+import com.examly.springapp.repository.QuestionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @Service
 public class ExamService {
 
-    private final Map<Long, Exam> examStorage = new HashMap<>();
-    private final Map<Long, List<Question>> examQuestions = new HashMap<>();
-    private Long examIdCounter = 1L;
-    private Long questionIdCounter = 1L;
+    @Autowired
+    private ExamRepository examRepository;
 
-    // ✅ Create a new exam with timestamp & defaults
-    public Exam createExam(Exam exam, String teacherId) {
-        exam.setExamId(examIdCounter++);
-        exam.setCreatedBy(teacherId);
-        exam.setCreatedAt(LocalDateTime.now());
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    public Exam createExam(Exam exam) {
+        if (exam.getCreatedAt() == null) {
+            exam.setCreatedAt(LocalDateTime.now());
+        }
         if (exam.getIsActive() == null) {
-            exam.setActive(false); // default inactive
+            exam.setIsActive(false);
         }
-        examStorage.put(exam.getExamId(), exam);
-        return exam;
+        return examRepository.save(exam);
     }
 
-    // ✅ Get all available (active) exams for students
-    public List<Exam> getAvailableExams() {
-        List<Exam> result = new ArrayList<>();
-        for (Exam exam : examStorage.values()) {
-            if (Boolean.TRUE.equals(exam.getIsActive())) {
-                result.add(exam);
-            }
-        }
-        return result;
-    }
-
-    // ✅ Get exams created by a teacher
-    public List<Exam> getExamsByTeacher(String teacherId) {
-        List<Exam> result = new ArrayList<>();
-        for (Exam exam : examStorage.values()) {
-            if (exam.getCreatedBy() != null && exam.getCreatedBy().equals(teacherId)) {
-                result.add(exam);
-            }
-        }
-        return result;
-    }
-
-    // ✅ Add question to exam (throws if exam not found)
     public Question addQuestion(Long examId, Question question) {
-        Exam exam = examStorage.get(examId);
-        if (exam == null) {
-            throw new NoSuchElementException("Exam not found");
-        }
-        question.setQuestionId(questionIdCounter++);
-        question.setExam(exam); // sets exam properly
-        examQuestions.computeIfAbsent(examId, k -> new ArrayList<>()).add(question);
-        return question;
-    }
-        // ✅ Get questions by exam
-    public List<Question> getQuestions(Long examId) {
-        return examQuestions.getOrDefault(examId, new ArrayList<>());
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
+        question.setExam(exam);
+        return questionRepository.save(question);
     }
 
-    // ✅ Set exam active/inactive
-    public boolean setExamActiveStatus(Long examId, boolean status) {
-        Exam exam = examStorage.get(examId);
-        if (exam != null) {
-            exam.setActive(status);
-            return true;
-        }
-        return false;
+    public List<Exam> getExamsByTeacher(String teacherUsername) {
+        return examRepository.findByCreatedBy(teacherUsername);
     }
 
-    // ✅ Activate exam directly
-    public boolean activateExam(Long examId) {
-        return setExamActiveStatus(examId, true);
-    }
-
-    // ✅ For student service usage
-    public Exam getExam(Long examId) {
-        return examStorage.get(examId);
-    }
-
-    public List<Exam> getAllExams() {
-        return new ArrayList<>(examStorage.values());
+    public Exam setExamActiveStatus(Long examId, Boolean isActive) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
+        exam.setIsActive(isActive);
+        return examRepository.save(exam);
     }
 }
