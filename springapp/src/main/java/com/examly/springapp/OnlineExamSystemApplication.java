@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class OnlineExamSystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(OnlineExamSystemApplication.class, args);
+        System.out.print("Hiii");
     }
 }
