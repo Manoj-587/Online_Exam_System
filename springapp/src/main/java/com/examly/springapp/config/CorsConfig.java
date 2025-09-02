@@ -17,3 +17,5 @@ public class CorsConfig {
         };
     }
 }
+
+/////nagullllllllll oru _________-
